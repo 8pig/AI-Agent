@@ -1,6 +1,3 @@
-from sys import prefix
-from tkinter.scrolledtext import example
-
 from langchain_openai import  ChatOpenAI
 from pydantic import SecretStr
 from langchain_core.prompts import PromptTemplate, ChatPromptTemplate, ChatMessagePromptTemplate, FewShotPromptTemplate
@@ -10,7 +7,7 @@ import os
 llm = ChatOpenAI(
     model="qwen-max-latest",
     base_url="https://dashscope.aliyuncs.com/compatible-mode/v1",
-    api_key=SecretStr("填写百炼的api key"),
+    api_key=SecretStr(""),
     streaming=True,
 )
 
