@@ -1,6 +1,9 @@
+from sys import prefix
+from tkinter.scrolledtext import example
+
 from langchain_openai import  ChatOpenAI
 from pydantic import SecretStr
-from langchain_core.prompts import PromptTemplate, ChatPromptTemplate, ChatMessagePromptTemplate
+from langchain_core.prompts import PromptTemplate, ChatPromptTemplate, ChatMessagePromptTemplate, FewShotPromptTemplate
 import os
 
 
@@ -35,11 +38,30 @@ chat_prompt_template = ChatPromptTemplate.from_messages([
 
 
 
-prompt = chat_prompt_template.format_messages(
-    role="编程",
-    domain="web开发",
-    question="你擅长什么")
+# prompt = chat_prompt_template.format_messages(
+#     role="编程",
+#     domain="web开发",
+#     question="你擅长什么")
 
+
+# 提示词模板
+example_prompt = "输入:{input}\n输出:{output}"
+# 示例
+examples = [
+    {"input": "将hello 翻译为中文", "output": "你好"},
+    {"input": "GoodBye 翻译为中文", "output": "再见"},
+    {"input": "pen 翻译为中文", "output": "钢笔"},
+]
+
+
+few_shot_prompt_template = FewShotPromptTemplate(
+    examples = examples,
+    example_prompt=PromptTemplate.from_template(example_prompt),
+    #
+    prefix="请将一下英文翻译中文",
+    suffix="输入:{text}\n 输出:",
+    input_variables=["text"], # text 替换suffix 中的 {text}
+)
 
 
 
@@ -50,14 +72,16 @@ prompt = chat_prompt_template.format_messages(
 # prompt = prompt_template.format(something="天气")
 #
 # print(prompt_template)
+
+prompt = few_shot_prompt_template.format(text="what fucking are you doing")
 print(prompt)
 resp = llm.stream(prompt)
+
+for chunk in resp:
+    if hasattr(chunk, 'content'):
+        print(chunk.content, end="", flush=True)
 
 # 如果确实需要流式处理
 # for chunk in llm.stream(prompt):
 #     if hasattr(chunk, 'content'):
 #         print(chunk.content, end="", flush=True)
-
-for chunk in resp:
-    if hasattr(chunk, 'content'):
-        print(chunk.content, end="", flush=True)
