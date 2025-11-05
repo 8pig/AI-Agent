@@ -1,82 +1,50 @@
-from langchain_openai import  ChatOpenAI
-from pydantic import SecretStr
-from langchain_core.prompts import PromptTemplate, ChatPromptTemplate, ChatMessagePromptTemplate, FewShotPromptTemplate
-import os
+from app.bailian.common import chat_prompt_template, llm
+from langchain_core.tools import  Tool
 
+def add (a, b):
+        return a + b
 
-llm = ChatOpenAI(
-    model="qwen-max-latest",
-    base_url="https://dashscope.aliyuncs.com/compatible-mode/v1",
-    api_key=SecretStr(""),
-    streaming=True,
+# 转化fn wei langchain 可以使用的对象
+add_tools =Tool.from_function(
+    func=add,
+    name="add",
+    description="加法计算"
 )
+# 将tools 与llm 绑定
 
-# system_message_template = ChatMessagePromptTemplate.from_template(
-#     template =  "你是一个{role}专家, 帮助用户解答{domain}领域的问题, 回答内容请遵守法律法规",
-#     role="system"
-# )
-#
-# human_message_template = ChatMessagePromptTemplate.from_template(
-#     template = "用户的问题: {question}",
-#     role="user"
-# )
-#
-# chat_prompt_template = ChatPromptTemplate.from_messages([
-#     system_message_template,
-#     human_message_template
-# ])
+llm_with_tools = llm.bind_tools([add_tools])
 
 
-# 抽象到上面  system 与 user prompt temp
-# chat_prompt_template = ChatPromptTemplate.from_messages([
-#     ("system", "你是一个{role}专家, 帮助用户解答{domain}领域的问题, 回答内容请遵守法律法规"),
-#     ("user", "用户的问题: {question}")
-# ])
+chain = chat_prompt_template | llm_with_tools
+
+# 调用
+resp = chain.invoke(input={
+    "role": "高数",
+    "domain": "数学计算",
+    "question": "请计算 12+12=?"
+})
+
+# 打印响应
+print(resp)
 
 
-
-# prompt = chat_prompt_template.format_messages(
-#     role="编程",
-#     domain="web开发",
-#     question="你擅长什么")
-
-
-# 提示词模板
-example_prompt = "输入:{input}\n输出:{output}"
-# 示例
-examples = [
-    {"input": "将hello 翻译为中文", "output": "你好"},
-    {"input": "GoodBye 翻译为中文", "output": "再见"},
-    {"input": "pen 翻译为中文", "output": "钢笔"},
-]
-
-few_shot_prompt_template = FewShotPromptTemplate(
-    examples = examples,
-    example_prompt=PromptTemplate.from_template(example_prompt),
-    prefix="请将一下英文翻译中文",
-    suffix="输入:{text}\n 输出:",
-    input_variables=["text"], # text 替换suffix 中的 {text}
-)
-
-prompt = few_shot_prompt_template.format(text="wtf")
-print(prompt)
-resp = llm.stream(prompt)
-
-for chunk in resp:
-    if hasattr(chunk, 'content'):
-        print(chunk.content, end="", flush=True)
-
-# 如果确实需要流式处理
-# for chunk in llm.stream(prompt):
-#     if hasattr(chunk, 'content'):
-#         print(chunk.content, end="", flush=True)
+tools_dict = {
+    "add": add
+}
 
 
 
-# # 创建提示词模板
-# prompt_template = PromptTemplate.from_template("今天{something}真不错")
-# #
-# # # 模板+变量 = 提示词
-# prompt = prompt_template.format(something="天气")
-#
-# print(prompt_template)
+for tool_calls in resp.tool_calls:
+    print(tool_calls) # 数组
+
+    args = tool_calls["args"]
+    print(args)
+
+    fn_name = tool_calls["name"]
+    print(fn_name)
+
+    tool_func = tools_dict[fn_name]
+
+    print(tool_func(int(args["__arg1"]), int(args["__arg2"])))
+
+
