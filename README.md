@@ -1,6 +1,6 @@
 ### py + llm 构建编程智能体
 
-[野猪佩奇 - 掘金]([https://www.aliyun.com](https://juejin.cn/user/1239904845567447/posts))
+[野猪佩奇 - 掘金](https://juejin.cn/user/1239904845567447/posts)
 #### 环境
 1. node 24+
 2. py 3.9.24
