@@ -1,6 +1,7 @@
 from langchain_core.prompts import ChatMessagePromptTemplate, ChatPromptTemplate
+from langchain_core.tools import tool
 from langchain_openai import ChatOpenAI
-from pydantic import SecretStr
+from pydantic import SecretStr, BaseModel, Field
 
 llm = ChatOpenAI(
     model="qwen-max-latest",
@@ -26,3 +27,22 @@ chat_prompt_template = ChatPromptTemplate.from_messages([
     system_message_template,
     human_message_template
 ])
+
+
+
+class AddInputArgs(BaseModel):
+    a: int = Field(description="第一个数字")
+    b: int = Field(description="第二个数字")
+
+@tool(
+    description="加法计算",
+    args_schema=AddInputArgs # 定义入参类型 是class类型
+)
+def add (a, b):
+    """add two numbers"""
+    return a + b
+
+def create_calc_tools():
+    return [add]
+
+calc_tool = create_calc_tools()

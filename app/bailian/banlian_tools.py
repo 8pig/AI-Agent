@@ -10,18 +10,17 @@ add_tools =Tool.from_function(
     name="add",
     description="加法计算"
 )
+
+
 # 将tools 与llm 绑定
-
 llm_with_tools = llm.bind_tools([add_tools])
-
-
 chain = chat_prompt_template | llm_with_tools
 
 # 调用
 resp = chain.invoke(input={
     "role": "高数",
     "domain": "数学计算",
-    "question": "请计算 12+12=?"
+    "question": "请计算 1111+12=?"
 })
 
 # 打印响应
@@ -46,5 +45,5 @@ for tool_calls in resp.tool_calls:
     tool_func = tools_dict[fn_name]
 
     print(tool_func(int(args["__arg1"]), int(args["__arg2"])))
-
+# 注意  大模型不一致，请自行测试
 
