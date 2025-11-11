@@ -1,6 +1,7 @@
 from langchain_core.prompts import ChatMessagePromptTemplate, ChatPromptTemplate
 from langchain_core.tools import tool
 from langchain_openai import ChatOpenAI
+from langchain_community.agent_toolkits import FileManagementToolkit
 from pydantic import SecretStr, BaseModel, Field
 from dotenv import load_dotenv
 import os
@@ -8,7 +9,6 @@ import os
 load_dotenv()  #
 # key = input("请输入 API Key: ")
 key = os.getenv("DASHSCOPE_API_KEY")
-print(key)
 llm = ChatOpenAI(
     # model="qwen-max-latest",
     model="qwen3-235b-a22b",
@@ -56,3 +56,7 @@ def create_calc_tools():
     return [add]
 
 calc_tool = create_calc_tools()
+
+
+file_toolkit = FileManagementToolkit(root_dir="D:\\code\\ai-agent-test")
+file_tools = file_toolkit.get_tools()
