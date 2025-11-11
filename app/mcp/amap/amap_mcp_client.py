@@ -9,7 +9,7 @@ from app.bailian.common import llm
 async def create_amap_client():
     mcp_config = {
         "amap": {
-            "url": "https://mcp.amap.com/sse?key=",
+            "url": "https://mcp.amap.com/sse?key=ca4d9b4b851b694faced0fe50079a24d",
             "transport": "sse"
 
         }

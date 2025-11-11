@@ -2,12 +2,19 @@ from langchain_core.prompts import ChatMessagePromptTemplate, ChatPromptTemplate
 from langchain_core.tools import tool
 from langchain_openai import ChatOpenAI
 from pydantic import SecretStr, BaseModel, Field
+from dotenv import load_dotenv
+import os
 
+load_dotenv()  #
+# key = input("请输入 API Key: ")
+key = os.getenv("DASHSCOPE_API_KEY")
+print(key)
 llm = ChatOpenAI(
-    model="qwen-max-latest",
-    # model="qwen3-235b-a22b",
+    # model="qwen-max-latest",
+    model="qwen3-235b-a22b",
     base_url="https://dashscope.aliyuncs.com/compatible-mode/v1",
-    api_key=SecretStr(""),
+    api_key=os.getenv("DASHSCOPE_API_KEY"),
+    # api_key=key,
     streaming=True,
 )
 
@@ -31,12 +38,15 @@ chat_prompt_template = ChatPromptTemplate.from_messages([
 
 
 class AddInputArgs(BaseModel):
-    a: int = Field(description="第一个数字")
-    b: int = Field(description="第二个数字")
+    a: int = Field(description="first number")
+    b: int = Field(description="second number")
+
+
 
 @tool(
-    description="加法计算",
-    args_schema=AddInputArgs # 定义入参类型 是class类型
+    description="add two numbers",
+    args_schema=AddInputArgs, # 定义入参类型 是class类型
+    return_direct=True
 )
 def add (a, b):
     """add two numbers"""
